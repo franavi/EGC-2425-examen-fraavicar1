@@ -117,3 +117,25 @@ def test_service_create_with_profile_fail_no_password(clean_database):
 
     assert UserRepository().count() == 0
     assert UserProfileRepository().count() == 0
+
+
+def test_signup_user_successful_count_bd(test_client):
+    response = test_client.post(
+        "/signup",
+        data=dict(name="Foo", surname="Example", email="foo@example.com", password="foo1234"),
+        follow_redirects=True,
+    )
+    assert response.request.path == url_for("public.index"), "Signup was unsuccessful"
+
+    assert UserRepository().count() == 1
+    assert UserProfileRepository().count() == 1
+
+
+def test_login_unsuccessful_empty(test_client):
+    response = test_client.post(
+        "/login", data=dict(email="", password=""), follow_redirects=True
+    )
+
+    assert response.request.path == url_for("auth.login"), "Login was unsuccessful"
+
+    test_client.get("/logout", follow_redirects=True)
